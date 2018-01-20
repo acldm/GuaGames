@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset = "utf-8" />
+    <title>game 1</title>
+    <style>
+      canvas {
+        border: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <canvas id="id-canvas" width="960" height="450"></canvas>
+    </div>
+    <div>
+      <input id="fpsControl" type="range" value="1" />
+    </div>
+    <div class="">
+      <label>
+        <input class="gua-auto-silder" type="range"
+          value=""
+          data-value="config.player_speed" />
+          玩家速度: <span class="gua-label"></span>
+      </label>
+    </div>
+
+    <div class="">
+      <label>
+        <input class="gua-auto-silder" type="range"
+          value=""
+          data-value="config.bullet_cooldown" />
+          子弹冷却时间: <span class="gua-label"></span>
+      </label>
+
+      <div class="">
+        <label>
+          <input class="gua-auto-silder" type="range"
+            value=""
+            data-value="config.bullet_speed" />
+            子弹速度: <span class="gua-label"></span>
+        </label>
+    </div>
+    <div>
+      <textarea id="text-log" rows="20" cols="28"></textarea>
+    </div>
+
+    <script src="guagame/gua_image.js"></script>
+    <script src="guagame/util.js"></script>
+    <script src="guagame/game.js"></script>
+    <script src="guagame/gua_scene.js"></script>
+    <script src="guagame/gua_label.js"></script>
+    <script src="guagame/gua_animation.js"></script>
+    <script src="scene/main/enemy.js"></script>
+    <script src="scene/main/player.js"></script>
+    <script src="scene/main/bullet.js"></script>
+    <script src="level.js"></script>
+    <script src="scene/main/scene.js"></script>
+    <script src="scene/title/scene_title.js"></script>
+    <script src="scene/end/scene_end.js"></script>
+    <script src="scene/main/gua_particle.js"></script>
+    <script src="scene/config.js"></script>
+    <script src="main.js"></script>
+
+  </body>
+
+    <script>
+    let es = sel => document.querySelectorAll(sel)
+    let bindAll = function(sel, eventName, callback) {
+      let l = es(sel)
+
+      for (var i = 0; i < l.length; i++) {
+        var input = l [i]
+        input.addEventListener(eventName, function(event) {
+          callback(event)
+        })
+      }
+    }
+
+    bindAll('.gua-auto-silder', 'input', function(event) {
+      let target = event.target
+      let bindVar = target.dataset.value
+      let v = target.value
+      eval(bindVar + "=" + v)
+      var label = target.closest('label').querySelector('.gua-label')
+      label.innerText = v
+    })
+    </script>
+
+</html>

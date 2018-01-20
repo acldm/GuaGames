@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" / />
+    <title>mario</title>
+    <style>
+      canvas {
+        border: 1px solid red
+      }
+    </style>
+  </head>
+  <body>
+    <h3></h3>
+    <div id="canvas-group">
+      <canvas id="id-canvas" data-action="tile_draw"
+      data-type="source" width="640" height="640"></canvas>
+      <canvas id="id-canvas-sprite" data-action="tile_draw"
+      data-type="child" width="160" height="320"></canvas>
+      <canvas id="id-canvas-sprite" data-action="tile_draw"
+      data-type="child" width="160" height="160"></canvas>
+    </div>
+
+    <div id="gua-control">
+      <button data-action="change_offset" data-offset="-1024">-1024</button>
+      <button data-action="change_offset" data-offset="1024">+1024</button>
+      <button data-action="change_offset" data-offset="-16">-16</button>
+      <button data-action="change_offset" data-offset="16">+16</button>
+    </div>
+  </body>
+  <script>
+    let e = sel => document.querySelector(sel)
+    let log = console.log.bind(console)
+    let ajax = request => {
+      let r = new XMLHttpRequest()
+      r.open(request.method, request.url, true)
+      r.responseType = 'arraybuffer'
+      r.onreadystatechange = event => {
+        if (r.readyState == 4) {
+          request.callback(r.response)
+        }
+      }
+      r.send()
+    }
+
+    const __main = () => {
+      window.offset = 32784
+      let request = {
+        method:'get',
+        url:'mario.nes',
+        callback(r) {
+          window.bytes = new Uint8Array(r)
+          drawNes(window.bytes)
+        },
+      }
+      ajax(request)
+    }
+
+    const color = {
+      0 : 'white',
+      1 : '#FE1000',
+      2 : '#FFB010',
+      3 : '#AA3030',
+    }
+
+    const drawBlock = (context, bytes, x, y, pixelWidth) => {
+      let w = pixelWidth
+      let h = pixelWidth
+      for (let i=0; i < 8; i++) {
+          let p1 = bytes[i]
+          let p2 = bytes[i+8]
+        for (let j=0; j < 8; j++) {
+          let c1 = p1 >> (7 - j) & 1
+          let c2 = p2 >> (7 - j) & 1
+          let pixel = (c2 << 1) + c1
+          if (pixel == 0) {
+            continue
+          }
+          let px = x + j *pixelWidth
+          let py = y + i * pixelWidth
+          context.fillStyle = color[pixel]
+          context.fillRect(px, py, w, h)
+
+        }
+      }
+    }
+
+    const drawSprite = (canvas, data, offsetX, offsetY, h, w) => {
+      let context = canvas.getContext('2d')
+      let pixelWidth = 10
+      let pixelPerBlock = 8
+      let blockSize = pixelPerBlock * pixelWidth
+      let offset = 0
+      for (let i=0; i<h; i++) {
+        for (let j=0; j<w; j++) {
+          let x = (offsetX + j) * blockSize
+          let y = (offsetY + i) * blockSize
+          drawBlock(context, data.slice(offset), x, y, pixelWidth)
+          offset += 16
+        }
+      }
+    }
+
+    const drawNes = bytes => {
+      //78 69
+      //0100 1110  0100 0101
+      let canvas = e("#id-canvas")
+      let context = canvas.getContext('2d')
+      context.clearRect(0, 0, 1000, 1000)
+      let blockSize = 8
+      let pixelSize = 8
+      let pixelWidth = 10
+
+      let numberOfBytesPerBlock = 16
+      for (let i=0; i< blockSize; i++) {
+        for (let j=0; j < blockSize; j++) {
+          let x = j * pixelSize * pixelWidth
+          let y = i *pixelSize *pixelWidth
+          let index = window.offset + (i * 8 + j) * numberOfBytesPerBlock
+          drawBlock(context, bytes.slice(index),x ,y, pixelWidth)
+        }
+      }
+
+    }
+
+    const actions = {
+      'change_offset': offset => {
+        window.offset += offset
+        console.log(window.offset);
+        e("h3").innerText = window.offset
+        drawNes(window.bytes)
+      },
+      'tile_draw': (event)=> {
+        let target = event.target
+        let type = target.dataset.type
+        let rect = target.getBoundingClientRect()
+        let x = event.clientX - rect.left
+        let y = event.clientY - rect.top
+        let indX = Math.floor(x / 80)
+        let indY = Math.floor(y / 80)
+        let bytesPerBlock = 16
+        if (type == 'source') {
+          let offset = (indY * 8 *bytesPerBlock) + indX * bytesPerBlock
+          window.tileOffset = window.offset + offset
+        }
+        else if (type == 'child') {
+          drawSprite(target, window.bytes.slice(window.tileOffset), indX, indY, 1, 1)
+        }
+      }
+    }
+    const bindEvent = () => {
+      e('#canvas-group').addEventListener('click', function(e) {
+        let action = e.target.dataset.action
+        actions[action] && actions[action](e)
+      })
+      e('#gua-control').addEventListener('click', function(e) {
+        let action = e.target.dataset.action
+        let offset = Number(e.target.dataset.offset)
+        actions[action] && actions[action](offset)
+      })
+    }
+
+    __main()
+    bindEvent()
+  </script>
+</html>

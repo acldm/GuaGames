@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset = "utf-8" />
+    <title>game 1</title>
+    <style>
+      canvas {
+        border: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <canvas id="id-canvas" width="400" height="300"></canvas>
+    </div>
+    <div>
+      <input id="fpsControl" type="range" value="1" />
+    </div>
+    <div>
+      <textarea id="text-log" rows="20" cols="28"></textarea>
+    </div>
+
+    <script src="guagame/util.js"></script>
+    <script src="guagame/game.js"></script>
+    <script src="guagame/gua_scene.js"></script>
+    <script src="scene/main/paddle.js"></script>
+    <script src="scene/main/block.js"></script>
+    <script src="scene/main/ball.js"></script>
+    <script src="level.js"></script>
+    <script src="scene/main/scene.js"></script>
+    <script src="scene/title/scene_title.js"></script>
+    <script src="scene/end/scene_end.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

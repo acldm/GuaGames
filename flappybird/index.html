@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset = "utf-8" />
+    <title>game 1</title>
+    <style>
+      canvas {
+        border: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <canvas id="id-canvas" width="290" height="520"></canvas>
+    </div>
+    <div>
+      <input id="fpsControl" type="range" value="1" />
+    </div>
+    <div class="gua-controls">
+      <div class="">
+      </div>
+    </div>
+
+    <script src="guagame/gua_image.js"></script>
+    <script src="guagame/util.js"></script>
+    <script src="guagame/game.js"></script>
+    <script src="guagame/gua_scene.js"></script>
+    <script src="guagame/gua_label.js"></script>
+    <script src="guagame/gua_animation.js"></script>
+    <script src="level.js"></script>
+    <script src="scene/title/scene_title.js"></script>
+    <script src="scene/title/ground.js"></script>
+    <script src="scene/title/bird.js"></script>
+    <script src="scene/title/pipes.js"></script>
+    <script src="scene/title/score.js"></script>
+    <script src="config.js"></script>
+    <script src="main.js"></script>
+
+  </body>
+
+    <script>
+    let es = sel => document.querySelectorAll(sel)
+    let bindAll = function(sel, eventName, callback) {
+      let l = es(sel)
+
+      for (var i = 0; i < l.length; i++) {
+        var input = l [i]
+        input.addEventListener(eventName, function(event) {
+          callback(event)
+        })
+      }
+    }
+
+    let templateControl = function(key, item) {
+      let t = `<div class="gua-controls">
+        <label>
+          <input class="gua-auto-silder" type="range"
+            min="${item.min}"
+            max="${item.max}"
+            value="${item.value}"
+            data-value="config.${key}" />
+            ${item._comment} <span class="gua-label"></span>
+        </label>
+      </div>`
+
+      return t
+    }
+
+    let insertControls = function() {
+      let div = e('.gua-controls')
+      let keys = Object.keys(config)
+      for (let k of keys) {
+        let item = config[k]
+        let html = templateControl(k, item)
+        div.insertAdjacentHTML('beforeend', html)
+      }
+    }
+
+    let bindEvents = function() {
+      bindAll('.gua-auto-silder', 'input', function(event) {
+        let target = event.target
+        let bindVar = target.dataset.value
+        let v = target.value
+        eval(bindVar + ".value=" + v)
+        var label = target.closest('label').querySelector('.gua-label')
+        label.innerText = v
+      })
+    }
+
+    let _main = function() {
+      insertControls()
+      bindEvents()
+    }
+
+    _main()
+
+    </script>
+</html>
